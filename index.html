@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test object issue</title>
+  </head>
+
+  <body>
+    <h1>Test object issue</h1>
+    <p>
+      This site should demonstrate if your browser has problems with large
+      objects. It yields undefined value if you try to access a very large
+      object. At the same time, similar logic using new Map() works ok.
+    </p>
+    <p>If you see <code>Object: broken</code> it means your browser's JS is broken <code>¯\_(ツ)_/¯</code></p>
+    <p>Preview the source code of the page to see how it works.</p>
+    <hr />
+    <pre>Object: <span id="result-object"></span></pre>
+    <pre>Map: <span id="result-map"></span></pre>
+    <hr />
+    <p>
+      Broken Browsers:
+      <pre>- Google Chrome / Version 132.0.6834.84 (Official Build) (arm64)</pre>
+      <pre>- Brave / Version 1.74.48 Chromium: 132.0.6834.83 (Official Build) (arm64)</pre>
+    </p>
+    <p>
+      Working Browsers:
+      <pre>- Safari / Version 18.1.1 (20619.2.8.11.12)</pre>
+    </p>
+    <hr>
+    <p><a href="https://github.com/bukowskiadam/broken-object-access">Github repo</a></p>
+    <script>
+      class BrokenObject {
+        data = {};
+
+        constructor(size = 1000000) {
+          for (let i = 0; i < size; i++) {
+            this.data[`x${i}`] = new Map();
+          }
+        }
+
+        test() {
+          const keys = Object.keys(this.data);
+          for (let key of keys) {
+            if (this.data[key] === undefined) {
+              return "broken";
+            }
+          }
+          return "ok";
+        }
+      }
+
+      class WorkingMap {
+        data = new Map();
+
+        constructor(size = 1000000) {
+          for (let i = 0; i < size; i++) {
+            this.data.set(`x${i}`, new Map());
+          }
+        }
+
+        test() {
+          const keys = this.data.keys();
+          for (let key of keys) {
+            if (this.data.get(key) === undefined) {
+              return "broken";
+            }
+          }
+          return "ok";
+        }
+      }
+
+      window.document.getElementById("result-object").innerText =
+        new BrokenObject().test();
+      window.document.getElementById("result-map").innerText =
+        new WorkingMap().test();
+    </script>
+  </body>
+</html>
